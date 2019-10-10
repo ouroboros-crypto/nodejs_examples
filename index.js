@@ -31,7 +31,8 @@ async function apiMethods() {
 
 async function cryptoMethods() {
     // Or you can use some standard mnemonic
-    const generatedMnemonic = await crypto.generateMnemonic();
+    const generatedMnemonic = "noise cruise alpha shy critic trend near sword family receive lunch eternal boss subject hunt eye okay aerobic invest immense drastic endorse know rain";
+    //const generatedMnemonic = await crypto.generateMnemonic();
 
     console.log(`Here is your generated mnemonic: ${generatedMnemonic}`);
 
@@ -41,6 +42,23 @@ async function cryptoMethods() {
     console.log(`Address: ${accountData.address}`);
     console.log(`PubKey: ${accountData.pubKey.toString('base64')}`);
     console.log(`PrivKey: ${accountData.privKey.toString('base64')}`);
+
+    // Then we store the private key and chain code somewhere (in DB) as base64 strings
+    const privateKey = accountData.privKey.toString('base64');
+    const chainCode = accountData.chainCode.toString('base64');
+
+    // If we need to get the account data from the private key, we have to convert them back to buffer and call the method
+    const accountDataFromPrivateKey = crypto.generateAccountFromPrivateKey(
+        Buffer.from(privateKey, 'base64'),
+        Buffer.from(chainCode, 'base64')
+    );
+
+
+    console.log(`Here is your account data from the private key:`);
+    console.log(`Address: ${accountDataFromPrivateKey.address}`);
+    console.log(`PubKey: ${accountDataFromPrivateKey.pubKey.toString('base64')}`);
+    console.log(`PrivKey: ${accountDataFromPrivateKey.privKey.toString('base64')}`);
+
 
     // Generate a send transaction and push it to the blockchain
     // Be sure that your account had at least 1 transaction - otherwise, accountNumber will be 0
@@ -70,4 +88,5 @@ async function cryptoMethods() {
     console.log(`TX hash: ${response.txhash}`);
 }
 
-apiMethods().then(cryptoMethods);
+//apiMethods();
+cryptoMethods();

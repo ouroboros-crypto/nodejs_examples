@@ -56,7 +56,21 @@ exports.generateAccountFromMnemonic = function (mnemonic) {
     return {
         'pubKey': wallet.publicKey,
         'privKey': wallet.privateKey,
-        'address': exports.getAddressFromPublicKey(wallet.publicKey)
+        'address': exports.getAddressFromPublicKey(wallet.publicKey),
+        'chainCode': wallet.chainCode
+    };
+};
+
+// Generate all the account info (privkey, pubkey, address) from the private key
+exports.generateAccountFromPrivateKey = function (privateKey, chainCode) {
+    const master = bip32.fromPrivateKey(privateKey, chainCode);
+    const wallet = master.neutered();
+
+    return {
+        'pubKey': wallet.publicKey,
+        'privKey': wallet.privateKey,
+        'address': exports.getAddressFromPublicKey(wallet.publicKey),
+        'chainCode': wallet.chainCode
     };
 };
 
