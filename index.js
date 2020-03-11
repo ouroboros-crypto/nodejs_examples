@@ -53,7 +53,6 @@ async function cryptoMethods() {
         Buffer.from(chainCode, 'base64')
     );
 
-
     console.log(`Here is your account data from the private key:`);
     console.log(`Address: ${accountDataFromPrivateKey.address}`);
     console.log(`PubKey: ${accountDataFromPrivateKey.pubKey.toString('base64')}`);

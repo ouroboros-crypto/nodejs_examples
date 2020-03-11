@@ -68,7 +68,7 @@ exports.generateAccountFromPrivateKey = function (privateKey, chainCode) {
 
     return {
         'pubKey': wallet.publicKey,
-        'privKey': wallet.privateKey,
+        'privKey': privateKey,
         'address': exports.getAddressFromPublicKey(wallet.publicKey),
         'chainCode': wallet.chainCode
     };
