@@ -100,6 +100,9 @@ exports.getSignMessage = function(accountNumber, sequence, msgs) {
 
 // Generate a send transaction
 exports.generatePushableTransaction = function(accountNumber, sequence, publicKey, privateKey, sendTo, amount) {
+    accountNumber = accountNumber.toString();
+    sequence = sequence.toString();
+
     const fromAddress = exports.getAddressFromPublicKey(publicKey);
 
     // Transaction messages

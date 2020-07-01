@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // Get all the account info by the address
 exports.getAccountInfo = function (address) {
     return fetch(`https://rest.ouroboros-crypto.com/auth/accounts/${address}`)
-        .then(res => res.json());
+        .then(res => res.json()).then(data => data.result);
 };
 
 // Get the balance of the account by its address using getAccountInfo
