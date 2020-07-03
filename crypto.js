@@ -10,23 +10,22 @@ const secp256k1 = require('secp256k1');
 const DERIVE_PATH = '44\'/118\'/0\'/0/0';
 
 // A helper that cleans all the empty fields and sorts the stuff
-function removeEmptyProperties(jsonTx) {
+function sortAllKeys(jsonTx) {
     if (Array.isArray(jsonTx)) {
-        return jsonTx.map(removeEmptyProperties)
+        return jsonTx.map(sortAllKeys)
     }
 
     // string or number
-    if (typeof jsonTx !== `object`) {
+    if (typeof jsonTx !== `object` || !jsonTx) {
         return jsonTx
     }
 
     const sorted = {};
+
     Object.keys(jsonTx)
         .sort()
         .forEach(key => {
-            if (jsonTx[key] === undefined || jsonTx[key] === null) return;
-
-            sorted[key] = removeEmptyProperties(jsonTx[key])
+            sorted[key] = sortAllKeys(jsonTx[key])
         });
 
     return sorted
@@ -88,7 +87,7 @@ exports.getAddressFromPublicKey = function (pubKey) {
 
 // Generates and returns a "sign" message we should sign with the private key
 exports.getSignMessage = function(accountNumber, sequence, msgs) {
-    return removeEmptyProperties({
+    return sortAllKeys({
         "chain_id": "ouroboros",
         "account_number": accountNumber,
         "fee": {"gas": "95000000000", "amount": [{"amount": "1000", "denom": "ouro"}]},
@@ -114,6 +113,61 @@ exports.generatePushableTransaction = function(accountNumber, sequence, publicKe
                 "to_address": sendTo,
                 "amount": [{"denom": "ouro", "amount": amount}],
             },
+        }
+    ];
+
+    // Here we gets the message we're going to sign next
+    const signMessage = exports.getSignMessage(accountNumber, sequence, msgs);
+
+    const signature = exports.sign(JSON.stringify(signMessage), privateKey);
+
+    return {
+        "tx": {
+            "msg": msgs,
+            "fee": {
+                "gas": "95000000000",
+                "amount": [{"denom": "ouro", "amount": "1000"}],
+            },
+            "memo": "",
+            "signatures": [
+                {
+                    "signature": signature.toString("base64"),
+                    "pub_key": {"type": "tendermint/PubKeySecp256k1", "value": publicKey.toString('base64')},
+                    "account_number": accountNumber,
+                    "sequence": sequence,
+                }
+            ],
+        },
+        "mode": "sync",
+    };
+};
+
+// Generate a reinvest transaction
+exports.generateReinvestTransaction = function(accountNumber, sequence, publicKey, privateKey) {
+    accountNumber = accountNumber.toString();
+    sequence = sequence.toString();
+
+    const fromAddress = exports.getAddressFromPublicKey(publicKey);
+
+    // Transaction messages
+    const msgs = [
+        {
+            "type": "posmining/Reinvest",
+            "value": {
+                "owner": fromAddress,
+                "coin": {
+                    "creator": "",
+                    "string": "",
+                    "symbol": "ouro",
+                    "emission": "0",
+                    "description": "",
+                    "posmining_enabled": false,
+                    "posmining_balance": null,
+                    "posmining_structure": null,
+                    "posmining_threshold": "0",
+                    "default": true
+                }
+            }
         }
     ];
 
